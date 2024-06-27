@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Complex Mathematical Synthesizer</title>
+    <link rel="stylesheet" href="styles0.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Dual Complex Mathematical Synthesizer</h1>
+        <div class="introduction">
+            <p>Welcome to the Dual Complex Mathematical Synthesizer! This tool converts two mathematical equations, including complex functions, into musical tones simultaneously. Enter two equations, click "Play," and listen to the combined sound of mathematics!</p>
+            <h2>Supported Equation Types:</h2>
+            <ul>
+                <li>Real and complex functions</li>
+                <li>Polynomial functions: x^2, 2x + 1, x^3 - 2x + 3</li>
+                <li>Trigonometric functions: sin(x), cos(x), tan(x)</li>
+                <li>Exponential and logarithmic: e^x, ln(x), log(x)</li>
+                <li>Complex operations: 1/(1-x), e^(i*x), sqrt(x)</li>
+                <li>Constants: pi, e, i (imaginary unit)</li>
+                <li>Basic arithmetic: +, -, *, /</li>
+                <li>Mathematical functions: abs(x), arg(x), re(x), im(x)</li>
+            </ul>
+            <p>Note: The synthesizer evaluates the equations for x values between -10 and 10.</p>
+        </div>
+        <div class="input-area">
+            <input type="text" id="equation1" placeholder="Enter first equation (e.g., sin(x))">
+            <input type="text" id="equation2" placeholder="Enter second equation (e.g., 1/(1-x))">
+            <button onclick="playSynth()">Play</button>
+        </div>
+        <div class="charts">
+            <div id="complexFunctionPlot"></div>
+            <canvas id="magnitudeChart"></canvas>
+        </div>
+    </div>
+    <script src="scr.js"></script>
+</body>
+</html>
