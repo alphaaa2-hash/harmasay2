@@ -1,6 +1,14 @@
 let audioContext;
 let magnitudeChart;
 
+function debounce(func, timeout = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
+
 function initCharts() {
     magnitudeChart = new Chart(document.getElementById('magnitudeChart').getContext('2d'), {
         type: 'line',
@@ -8,12 +16,12 @@ function initCharts() {
             datasets: [
                 {
                     label: 'Magnitude 1',
-                    borderColor: 'rgb(75, 192, 192)',
+                    borderColor: '#bb86fc',
                     tension: 0.1
                 },
                 {
                     label: 'Magnitude 2',
-                    borderColor: 'rgb(192, 75, 75)',
+                    borderColor: '#03dac6',
                     tension: 0.1
                 }
             ]
@@ -26,14 +34,23 @@ function initCharts() {
                     position: 'bottom',
                     title: {
                         display: true,
-                        text: 'Time'
-                    }
+                        text: 'Time',
+                        color: '#e0e0e0'
+                    },
+                    ticks: { color: '#e0e0e0' }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Magnitude'
-                    }
+                        text: 'Magnitude',
+                        color: '#e0e0e0'
+                    },
+                    ticks: { color: '#e0e0e0' }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#e0e0e0' }
                 }
             }
         }
@@ -152,13 +169,18 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
     };
 
     const layout = {
-        title: 'Complex Functions Visualization',
+        title: {
+            text: 'Complex Functions Visualization',
+            font: { color: '#e0e0e0' }
+        },
         autosize: true,
         height: 500,
+        paper_bgcolor: '#1e1e1e',
+        plot_bgcolor: '#1e1e1e',
         scene: {
-            xaxis:{title: 'x'},
-            yaxis:{title: 'Re'},
-            zaxis:{title: 'Im'}
+            xaxis:{title: 'x', color: '#e0e0e0'},
+            yaxis:{title: 'Re', color: '#e0e0e0'},
+            zaxis:{title: 'Im', color: '#e0e0e0'}
         }
     };
 
@@ -172,4 +194,6 @@ function updateMagnitudeChart(magnitudes1, magnitudes2) {
     magnitudeChart.update();
 }
 
-window.onload = initCharts;
+const debouncedPlaySynth = debounce(playSynth, 300);
+
+document.addEventListener('DOMContentLoaded', initCharts);
