@@ -79,7 +79,7 @@ function playSynth() {
     oscillator1.start();
     oscillator2.start();
 
-    const duration = 3; // 3 seconds
+    const duration = 2; // 2 seconds
     const sampleRate = audioContext.sampleRate;
     const waveform1 = [];
     const waveform2 = [];
