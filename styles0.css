@@ -4,12 +4,10 @@ body {
     padding: 0;
     transition: background-color 0.3s, color 0.3s;
 }
-
 body.dark-mode {
     background-color: #121212;
     color: #e0e0e0;
 }
-
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -18,42 +16,35 @@ body.dark-mode {
     box-shadow: 0 0 10px rgba(255,255,255,0.1);
     border-radius: 5px;
 }
-
 h1 {
     text-align: center;
     color: #bb86fc;
 }
-
 .introduction {
     background-color: #2e2e2e;
     border-radius: 5px;
     padding: 20px;
     margin-bottom: 20px;
 }
-
 .introduction h2 {
     color: #03dac6;
     font-size: 1.2em;
     margin-top: 15px;
     margin-bottom: 10px;
 }
-
 .introduction ul {
     list-style-type: disc;
     padding-left: 20px;
 }
-
 .introduction li {
     margin-bottom: 5px;
 }
-
 .input-area {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
-
 input[type="text"] {
     width: 300px;
     padding: 10px;
@@ -64,7 +55,6 @@ input[type="text"] {
     background-color: #2e2e2e;
     color: #e0e0e0;
 }
-
 button {
     padding: 10px 20px;
     font-size: 16px;
@@ -76,23 +66,73 @@ button {
     margin: 5px;
     transition: background-color 0.3s;
 }
-
 button:hover {
     background-color: #03dac6;
 }
-
 .charts {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
-
 #complexFunctionPlot {
     width: 100%;
     height: 400px;
 }
-
 #magnitudeChart {
     width: 100%;
     height: 200px;
+}
+#captchaContainer {
+    background-color: #2e2e2e;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+#mathProblem {
+    font-size: 24px;
+    color: #bb86fc;
+    margin-bottom: 10px;
+}
+#captchaInput {
+    width: 100px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #bb86fc;
+    border-radius: 4px;
+    margin: 5px;
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+}
+#captchaContainer button {
+    margin: 5px;
+    padding: 10px 15px;
+}
+#loadingMessage {
+    background-color: #3e3e3e;
+    color: #e0e0e0;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin: 10px 0;
+    font-weight: bold;
+}
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #bb86fc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+#stopButton {
+    background-color: #cf6679;
+}
+#stopButton:hover {
+    background-color: #a00000;
 }
