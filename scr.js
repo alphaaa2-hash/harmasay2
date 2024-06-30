@@ -1,8 +1,10 @@
-const worker = new Worker('worker.js');
-
-
 let audioContext;
 let magnitudeChart;
+let oscillator1, oscillator2, gainNode1, gainNode2;
+let isPlaying = false;
+let captchaAnswer = 0;
+
+const worker = new Worker('worker.js');
 
 function debounce(func, timeout = 300) {
     let timer;
@@ -60,19 +62,78 @@ function initCharts() {
     });
 }
 
+function generateMathCaptcha() {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    const operation = Math.random() < 0.5 ? '+' : '-';
+    
+    let problem = `${num1} ${operation} ${num2}`;
+    
+    if (operation === '+') {
+        captchaAnswer = num1 + num2;
+    } else {
+        captchaAnswer = num1 - num2;
+    }
+    
+    document.getElementById('mathProblem').textContent = `Solve: ${problem} = ?`;
+    document.getElementById('captchaInput').value = '';
+}
+
+function validateCaptcha() {
+    const input = parseInt(document.getElementById('captchaInput').value);
+    if (input === captchaAnswer) {
+        alert('CAPTCHA verified successfully!');
+        document.getElementById('captchaContainer').style.display = 'none';
+        document.querySelector('.input-area').style.display = 'flex';
+    } else {
+        alert('CAPTCHA verification failed. Please try again.');
+        generateMathCaptcha();
+    }
+    document.getElementById('captchaInput').value = '';
+}
+
 function playSynth() {
+    if (document.getElementById('captchaContainer').style.display !== 'none') {
+        alert('Please solve the math problem first.');
+        return;
+    }
+    if (isPlaying) return;
+    isPlaying = true;
+
+    document.getElementById('loadingMessage').style.display = 'block';
+    document.querySelector('button[onclick="debouncedPlaySynth()"]').style.display = 'none';
+    document.getElementById('stopButton').style.display = 'inline-block';
+
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 
     const equation1 = document.getElementById('equation1').value;
     const equation2 = document.getElementById('equation2').value;
-    const parser = math.parser();
+    const duration = 2;
+    const sampleRate = audioContext.sampleRate;
+    const minX = -10;
+    const maxX = 10;
 
-    const oscillator1 = audioContext.createOscillator();
-    const oscillator2 = audioContext.createOscillator();
-    const gainNode1 = audioContext.createGain();
-    const gainNode2 = audioContext.createGain();
+    worker.postMessage({equation1, equation2, minX, maxX, duration, sampleRate});
+
+    worker.onmessage = function(e) {
+        const {waveform1, waveform2, magnitudes1, magnitudes2} = e.data;
+
+        updateComplexFunctionPlot(waveform1, waveform2);
+        updateMagnitudeChart(magnitudes1, magnitudes2);
+
+        playAudio(magnitudes1, magnitudes2);
+
+        document.getElementById('loadingMessage').style.display = 'none';
+    };
+}
+
+function playAudio(magnitudes1, magnitudes2) {
+    oscillator1 = audioContext.createOscillator();
+    oscillator2 = audioContext.createOscillator();
+    gainNode1 = audioContext.createGain();
+    gainNode2 = audioContext.createGain();
 
     oscillator1.connect(gainNode1);
     oscillator2.connect(gainNode2);
@@ -82,63 +143,42 @@ function playSynth() {
     oscillator1.start();
     oscillator2.start();
 
-    const duration = 2; // 2 seconds
-    const sampleRate = audioContext.sampleRate;
-    const waveform1 = [];
-    const waveform2 = [];
-    const magnitudes1 = [];
-    const magnitudes2 = [];
+    const duration = 2;
+    const updateInterval = 0.01;
+    const samplesPerUpdate = Math.floor(audioContext.sampleRate * updateInterval);
 
-    const minX = -10;
-    const maxX = 10;
+    for (let i = 0; i < magnitudes1.length; i += samplesPerUpdate) {
+        const time = audioContext.currentTime + (i / audioContext.sampleRate);
+        
+        const frequency1 = mapToFrequency(magnitudes1[i]);
+        const frequency2 = mapToFrequency(magnitudes2[i]);
 
-    for (let i = 0; i < duration * sampleRate; i++) {
-        const x = minX + (i / (duration * sampleRate)) * (maxX - minX);
-        try {
-            parser.set('x', math.complex(x, 0)); // Use complex x
+        oscillator1.frequency.setValueAtTime(frequency1, time);
+        oscillator2.frequency.setValueAtTime(frequency2, time);
 
-            const result1 = parser.evaluate(equation1);
-            const magnitude1 = math.abs(result1);
-            const phase1 = math.arg(result1);
-
-            const result2 = parser.evaluate(equation2);
-            const magnitude2 = math.abs(result2);
-            const phase2 = math.arg(result2);
-
-            // Map magnitudes to frequencies
-            const frequency1 = mapToFrequency(magnitude1);
-            const frequency2 = mapToFrequency(magnitude2);
-
-            oscillator1.frequency.setValueAtTime(frequency1, audioContext.currentTime + (i / sampleRate));
-            oscillator2.frequency.setValueAtTime(frequency2, audioContext.currentTime + (i / sampleRate));
-
-            // Map phases to gains
-            const gain1 = (math.cos(phase1) + 1) / 4; // Normalize to [0, 0.5]
-            const gain2 = (math.cos(phase2) + 1) / 4; // Normalize to [0, 0.5]
-
-            gainNode1.gain.setValueAtTime(gain1, audioContext.currentTime + (i / sampleRate));
-            gainNode2.gain.setValueAtTime(gain2, audioContext.currentTime + (i / sampleRate));
-
-            waveform1.push({x: x, y: result1.re, z: result1.im});
-            waveform2.push({x: x, y: result2.re, z: result2.im});
-            magnitudes1.push(magnitude1);
-            magnitudes2.push(magnitude2);
-        } catch (error) {
-            console.error('Error evaluating equation:', error);
-        }
+        gainNode1.gain.setValueAtTime(0.5, time);
+        gainNode2.gain.setValueAtTime(0.5, time);
     }
 
-    updateComplexFunctionPlot(waveform1, waveform2);
-    updateMagnitudeChart(magnitudes1, magnitudes2);
-
     setTimeout(() => {
-        oscillator1.stop();
-        oscillator2.stop();
+        stopSynth();
     }, duration * 1000);
 }
 
+function stopSynth() {
+    if (!isPlaying) return;
+    isPlaying = false;
+
+    if (oscillator1) {
+        oscillator1.stop();
+        oscillator2.stop();
+    }
+
+    document.querySelector('button[onclick="debouncedPlaySynth()"]').style.display = 'inline-block';
+    document.getElementById('stopButton').style.display = 'none';
+}
+
 function mapToFrequency(magnitude) {
-    // Map magnitude to frequency range (e.g., 20Hz to 2000Hz)
     return Math.max(20, Math.min(2000, magnitude * 200 + 20));
 }
 
@@ -166,37 +206,4 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
         name: 'Equation 2',
         line: {
             width: 6,
-            color: waveform2.map(point => Math.sqrt(point.y*point.y + point.z*point.z)),
-            colorscale: 'Plasma'
-        }
-    };
-
-    const layout = {
-        title: {
-            text: 'Functions Visualization',
-            font: { color: '#e0e0e0' }
-        },
-        autosize: true,
-        height: 500,
-        paper_bgcolor: '#1e1e1e',
-        plot_bgcolor: '#1e1e1e',
-        scene: {
-            xaxis:{title: 'x', color: '#e0e0e0'},
-            yaxis:{title: 'Re', color: '#e0e0e0'},
-            zaxis:{title: 'Im', color: '#e0e0e0'}
-        }
-    };
-
-    Plotly.newPlot('complexFunctionPlot', [trace1, trace2], layout);
-}
-
-function updateMagnitudeChart(magnitudes1, magnitudes2) {
-    magnitudeChart.data.labels = magnitudes1.map((_, i) => i);
-    magnitudeChart.data.datasets[0].data = magnitudes1;
-    magnitudeChart.data.datasets[1].data = magnitudes2;
-    magnitudeChart.update();
-}
-
-const debouncedPlaySynth = debounce(playSynth, 300);
-
-document.addEventListener('DOMContentLoaded', initCharts);
+            color: waveform2
