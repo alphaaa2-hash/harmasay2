@@ -86,12 +86,18 @@ function createOscillators(eq1Data, eq2Data, xValues) {
 
         const osc2 = audioContext.createOscillator();
         osc2.frequency.setValueAtTime(eq2Data[index] || 0, audioContext.currentTime);
-        osc2.type = 'sine';
+        osc2.type = 'square'; // Using square wave for a richer sound
 
-        osc1.connect(gainNode);
-        osc2.connect(gainNode);
+        // Connect oscillators through a biquad filter for smoothing
+        const biquadFilter = audioContext.createBiquadFilter();
+        biquadFilter.type = 'lowpass';
+        biquadFilter.frequency.setValueAtTime(1000, audioContext.currentTime); // Adjust frequency for smoother transitions
 
-        oscillators.push({ osc1, osc2 });
+        osc1.connect(biquadFilter);
+        osc2.connect(biquadFilter);
+        biquadFilter.connect(gainNode);
+
+        oscillators.push({ osc1, osc2, biquadFilter });
     });
 
     oscillators.forEach(({ osc1, osc2 }) => {
@@ -125,7 +131,7 @@ function debounce(func, wait) {
     };
 }
 
-const debouncedPlaySynth = debounce(playSynth, 500);
+const debouncedPlaySynth = debounce(playSynth, 300);
 
 // Function to play the synthesizer
 function playSynth() {
@@ -138,13 +144,13 @@ function playSynth() {
 
     document.getElementById('loadingMessage').style.display = 'block';
 
-    setTimeout(() => {
-        plotEquations(eq1Data, eq2Data, xValues);
-        createOscillators(eq1Data, eq2Data, xValues);
+    // Immediately hide loading message and display stop button
+    document.getElementById('loadingMessage').style.display = 'none';
+    document.getElementById('stopButton').style.display = 'inline-block';
 
-        document.getElementById('loadingMessage').style.display = 'none';
-        document.getElementById('stopButton').style.display = 'inline-block';
-    }, 1000);
+    // Execute plot and oscillator creation without delay
+    plotEquations(eq1Data, eq2Data, xValues);
+    createOscillators(eq1Data, eq2Data, xValues);
 }
 
 // Event listeners
