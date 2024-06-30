@@ -2,7 +2,6 @@ let audioContext;
 let magnitudeChart;
 let oscillator1, oscillator2, gainNode1, gainNode2;
 let isPlaying = false;
-let captchaAnswer = 0;
 
 const worker = new Worker('worker.js');
 
@@ -62,41 +61,7 @@ function initCharts() {
     });
 }
 
-function generateMathCaptcha() {
-    const num1 = Math.floor(Math.random() * 10) + 1;
-    const num2 = Math.floor(Math.random() * 10) + 1;
-    const operation = Math.random() < 0.5 ? '+' : '-';
-    
-    let problem = `${num1} ${operation} ${num2}`;
-    
-    if (operation === '+') {
-        captchaAnswer = num1 + num2;
-    } else {
-        captchaAnswer = num1 - num2;
-    }
-    
-    document.getElementById('mathProblem').textContent = `Solve: ${problem} = ?`;
-    document.getElementById('captchaInput').value = '';
-}
-
-function validateCaptcha() {
-    const input = parseInt(document.getElementById('captchaInput').value);
-    if (input === captchaAnswer) {
-        alert('CAPTCHA verified successfully!');
-        document.getElementById('captchaContainer').style.display = 'none';
-        document.querySelector('.input-area').style.display = 'flex';
-    } else {
-        alert('CAPTCHA verification failed. Please try again.');
-        generateMathCaptcha();
-    }
-    document.getElementById('captchaInput').value = '';
-}
-
 function playSynth() {
-    if (document.getElementById('captchaContainer').style.display !== 'none') {
-        alert('Please solve the math problem first.');
-        return;
-    }
     if (isPlaying) return;
     isPlaying = true;
 
@@ -206,4 +171,37 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
         name: 'Equation 2',
         line: {
             width: 6,
-            color: waveform2
+            color: waveform2.map(point => Math.sqrt(point.y*point.y + point.z*point.z)),
+            colorscale: 'Plasma'
+        }
+    };
+
+    const layout = {
+        title: {
+            text: 'Functions Visualization',
+            font: { color: '#e0e0e0' }
+        },
+        autosize: true,
+        height: 500,
+        paper_bgcolor: '#1e1e1e',
+        plot_bgcolor: '#1e1e1e',
+        scene: {
+            xaxis:{title: 'x', color: '#e0e0e0'},
+            yaxis:{title: 'Re', color: '#e0e0e0'},
+            zaxis:{title: 'Im', color: '#e0e0e0'}
+        }
+    };
+
+    Plotly.newPlot('complexFunctionPlot', [trace1, trace2], layout);
+}
+
+function updateMagnitudeChart(magnitudes1, magnitudes2) {
+    magnitudeChart.data.labels = magnitudes1.map((_, i) => i);
+    magnitudeChart.data.datasets[0].data = magnitudes1;
+    magnitudeChart.data.datasets[1].data = magnitudes2;
+    magnitudeChart.update();
+}
+
+const debouncedPlaySynth = debounce(playSynth, 300);
+
+document.addEventListener('DOMContentLoaded', initCharts);
