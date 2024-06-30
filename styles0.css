@@ -96,14 +96,3 @@ button:hover {
     width: 100%;
     height: 200px;
 }
-
-/* Animation for inputs */
-@keyframes glow {
-    0% { box-shadow: 0 0 5px #bb86fc; }
-    50% { box-shadow: 0 0 20px #bb86fc; }
-    100% { box-shadow: 0 0 5px #bb86fc; }
-}
-
-input[type="text"]:focus {
-    animation: glow 1.5s infinite;
-}
