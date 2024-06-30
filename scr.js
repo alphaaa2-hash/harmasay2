@@ -79,7 +79,7 @@ function playSynth() {
     oscillator1.start();
     oscillator2.start();
 
-    const duration = 2; // 2 seconds
+    const duration = 3; // 3 seconds
     const sampleRate = audioContext.sampleRate;
     const waveform1 = [];
     const waveform2 = [];
@@ -170,7 +170,7 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
 
     const layout = {
         title: {
-            text: 'Complex Functions Visualization',
+            text: 'Functions Visualization',
             font: { color: '#e0e0e0' }
         },
         autosize: true,
