@@ -125,7 +125,7 @@ function debounce(func, wait) {
     };
 }
 
-const debouncedPlaySynth = debounce(playSynth, 300);
+const debouncedPlaySynth = debounce(playSynth, 500);
 
 // Function to play the synthesizer
 function playSynth() {
@@ -138,16 +138,15 @@ function playSynth() {
 
     document.getElementById('loadingMessage').style.display = 'block';
 
-    // Immediately hide loading message and display stop button
-    document.getElementById('loadingMessage').style.display = 'none';
-    document.getElementById('stopButton').style.display = 'inline-block';
+    setTimeout(() => {
+        plotEquations(eq1Data, eq2Data, xValues);
+        createOscillators(eq1Data, eq2Data, xValues);
 
-    // Execute plot and oscillator creation without delay
-    plotEquations(eq1Data, eq2Data, xValues);
-    createOscillators(eq1Data, eq2Data, xValues);
+        document.getElementById('loadingMessage').style.display = 'none';
+        document.getElementById('stopButton').style.display = 'inline-block';
+    }, 1000);
 }
 
 // Event listeners
 document.getElementById('stopButton').addEventListener('click', stopSynth);
-
 
