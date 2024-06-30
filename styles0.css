@@ -82,32 +82,6 @@ button:hover {
     width: 100%;
     height: 200px;
 }
-#captchaContainer {
-    background-color: #2e2e2e;
-    padding: 20px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    text-align: center;
-}
-#mathProblem {
-    font-size: 24px;
-    color: #bb86fc;
-    margin-bottom: 10px;
-}
-#captchaInput {
-    width: 100px;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #bb86fc;
-    border-radius: 4px;
-    margin: 5px;
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-}
-#captchaContainer button {
-    margin: 5px;
-    padding: 10px 15px;
-}
 #loadingMessage {
     background-color: #3e3e3e;
     color: #e0e0e0;
