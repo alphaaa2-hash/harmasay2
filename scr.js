@@ -86,18 +86,12 @@ function createOscillators(eq1Data, eq2Data, xValues) {
 
         const osc2 = audioContext.createOscillator();
         osc2.frequency.setValueAtTime(eq2Data[index] || 0, audioContext.currentTime);
-        osc2.type = 'square'; // Using square wave for a richer sound
+        osc2.type = 'sine';
 
-        // Connect oscillators through a biquad filter for smoothing
-        const biquadFilter = audioContext.createBiquadFilter();
-        biquadFilter.type = 'lowpass';
-        biquadFilter.frequency.setValueAtTime(1000, audioContext.currentTime); // Adjust frequency for smoother transitions
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
 
-        osc1.connect(biquadFilter);
-        osc2.connect(biquadFilter);
-        biquadFilter.connect(gainNode);
-
-        oscillators.push({ osc1, osc2, biquadFilter });
+        oscillators.push({ osc1, osc2 });
     });
 
     oscillators.forEach(({ osc1, osc2 }) => {
@@ -155,4 +149,5 @@ function playSynth() {
 
 // Event listeners
 document.getElementById('stopButton').addEventListener('click', stopSynth);
+
 
