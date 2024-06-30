@@ -1,4 +1,6 @@
 const worker = new Worker('worker.js');
+
+
 let audioContext;
 let magnitudeChart;
 
