@@ -29,10 +29,21 @@
             <p>Note: The synthesizer evaluates the equations for x values between -10 and 10.</p>
             <p1>Warning: Please make sure to reduce the volume!</p1>
         </div>
+        <div id="captchaContainer" class="animate__animated animate__fadeIn">
+            <p id="mathProblem"></p>
+            <input type="number" id="captchaInput" placeholder="Enter answer">
+            <button onclick="validateCaptcha()">Verify</button>
+            <button onclick="generateMathCaptcha()">New Problem</button>
+        </div>
+        <div id="loadingMessage" style="display: none;">
+            <div class="spinner"></div>
+            <p>Calculating and generating graph. Please wait...</p>
+        </div>
         <div class="input-area animate__animated animate__fadeInRight">
             <input type="text" id="equation1" placeholder="Enter first equation (e.g., sin(x))">
             <input type="text" id="equation2" placeholder="Enter second equation (e.g., 1/(1-x))">
             <button onclick="debouncedPlaySynth()" class="animate__animated animate__pulse animate__infinite">Play</button>
+            <button id="stopButton" onclick="stopSynth()" style="display: none;">Stop</button>
         </div>
         <div class="charts">
             <div id="complexFunctionPlot" class="animate__animated animate__zoomIn"></div>
