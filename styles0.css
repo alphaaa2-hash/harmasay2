@@ -13,7 +13,7 @@ body.dark-mode {
     margin: 0 auto;
     padding: 20px;
     background-color: #1e1e1e;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
     border-radius: 5px;
 }
 h1 {
@@ -38,9 +38,6 @@ h1 {
 }
 .introduction li {
     margin-bottom: 5px;
-}
-.warning {
-    color: #cf6679;
 }
 .input-area {
     display: flex;
@@ -113,4 +110,3 @@ button:hover {
 #stopButton:hover {
     background-color: #a00000;
 }
-
