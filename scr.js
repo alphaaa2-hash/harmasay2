@@ -103,10 +103,14 @@ function playAudio(magnitudes1, magnitudes2) {
     gainNode1 = audioContext.createGain();
     gainNode2 = audioContext.createGain();
 
+    const reverb = audioContext.createConvolver();
+    reverb.buffer = createReverbBuffer(audioContext);
+
     oscillator1.connect(gainNode1);
     oscillator2.connect(gainNode2);
-    gainNode1.connect(audioContext.destination);
-    gainNode2.connect(audioContext.destination);
+    gainNode1.connect(reverb);
+    gainNode2.connect(reverb);
+    reverb.connect(audioContext.destination);
 
     oscillator1.start();
     oscillator2.start();
@@ -117,15 +121,15 @@ function playAudio(magnitudes1, magnitudes2) {
 
     for (let i = 0; i < magnitudes1.length; i += samplesPerUpdate) {
         const time = audioContext.currentTime + (i / audioContext.sampleRate);
-        
+
         const frequency1 = mapToScaleFrequency(magnitudes1[i]);
         const frequency2 = mapToScaleFrequency(magnitudes2[i]);
 
-        oscillator1.frequency.setValueAtTime(frequency1, time);
-        oscillator2.frequency.setValueAtTime(frequency2, time);
+        oscillator1.frequency.setTargetAtTime(frequency1, time, 0.1); // Smooth transition
+        oscillator2.frequency.setTargetAtTime(frequency2, time, 0.1); // Smooth transition
 
-        gainNode1.gain.setValueAtTime(0.5, time);
-        gainNode2.gain.setValueAtTime(0.5, time);
+        gainNode1.gain.setTargetAtTime(0.5, time, 0.1); // Smooth gain transition
+        gainNode2.gain.setTargetAtTime(0.5, time, 0.1); // Smooth gain transition
     }
 
     setTimeout(() => {
@@ -144,6 +148,20 @@ function stopSynth() {
 
     document.querySelector('button[onclick="debouncedPlaySynth()"]').style.display = 'inline-block';
     document.getElementById('stopButton').style.display = 'none';
+}
+
+// Create a reverb buffer
+function createReverbBuffer(audioContext) {
+    const length = audioContext.sampleRate * 3; // 3 seconds reverb
+    const impulse = audioContext.createBuffer(2, length, audioContext.sampleRate);
+    const impulseL = impulse.getChannelData(0);
+    const impulseR = impulse.getChannelData(1);
+
+    for (let i = 0; i < length; i++) {
+        impulseL[i] = (Math.random() * 2 - 1) * (1 - i / length);
+        impulseR[i] = (Math.random() * 2 - 1) * (1 - i / length);
+    }
+    return impulse;
 }
 
 // Map magnitude to the nearest frequency in the major scale
@@ -171,7 +189,7 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
         name: 'Equation 1',
         line: {
             width: 6,
-            color: waveform1.map(point => Math.sqrt(point.y*point.y + point.z*point.z)),
+            color: waveform1.map(point => Math.sqrt(point.y * point.y + point.z * point.z)),
             colorscale: 'Viridis'
         }
     };
@@ -185,7 +203,7 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
         name: 'Equation 2',
         line: {
             width: 6,
-            color: waveform2.map(point => Math.sqrt(point.y*point.y + point.z*point.z)),
+            color: waveform2.map(point => Math.sqrt(point.y * point.y + point.z * point.z)),
             colorscale: 'Plasma'
         }
     };
@@ -200,9 +218,9 @@ function updateComplexFunctionPlot(waveform1, waveform2) {
         paper_bgcolor: '#1e1e1e',
         plot_bgcolor: '#1e1e1e',
         scene: {
-            xaxis:{title: 'x', color: '#e0e0e0'},
-            yaxis:{title: 'Re', color: '#e0e0e0'},
-            zaxis:{title: 'Im', color: '#e0e0e0'}
+            xaxis: { title: 'x', color: '#e0e0e0' },
+            yaxis: { title: 'Re', color: '#e0e0e0' },
+            zaxis: { title: 'Im', color: '#e0e0e0' }
         }
     };
 
@@ -219,3 +237,4 @@ function updateMagnitudeChart(magnitudes1, magnitudes2) {
 const debouncedPlaySynth = debounce(playSynth, 300);
 
 document.addEventListener('DOMContentLoaded', initCharts);
+
